@@ -260,7 +260,9 @@ class DynamoDbClient(GenericClient):
             else:
                 filter_expression = key_or_filter_expression
 
-                if fe := common_query_settings.get("FilterExpression"):
+                fe = common_query_settings.get("FilterExpression")
+
+                if fe:
                     filter_expression &= fe
                     common_query_settings.pop("FilterExpression")
 
