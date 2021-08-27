@@ -87,10 +87,10 @@ source_db_cfg = {
 destination_db_cfg = {
     "database": Databases.MONGODB,
     "database_name": "migrated_db",
-    "connection_string": "mongodb://redacted-ai-azure-test:9EN9xImfcytQ3aJNSab4Wgyvel8GV6PVDjVJN87QFvIn5s5oH8nFmIcvezNUd7HW0ty4kZnOZIoIQ4ynNaTXgw==@redacted-ai-azure-test.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@redacted-ai-azure-test@",
+    "connection_string": "<>"
 }
 internal_db_cfg = {
     "database": Databases.MONGODB,
     "database_name": "internal_db",
-    "connection_string": "mongodb://redacted-ai-azure-test:9EN9xImfcytQ3aJNSab4Wgyvel8GV6PVDjVJN87QFvIn5s5oH8nFmIcvezNUd7HW0ty4kZnOZIoIQ4ynNaTXgw==@redacted-ai-azure-test.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@redacted-ai-azure-test@",
+    "connection_string": "<>"
 }
