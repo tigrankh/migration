@@ -1,0 +1,75 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[requires]
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
+
+[dev-packages]
+mypy = "*"
+pytest = "*"
+flake8 = "*"
+pytest-mock = "*"
+pytest-aiohttp = "*"
+click = "*"
+devtools = "*"
+coverage = "*"
+pylint = "*"
+black = "*"
+isort = "*"
+pytest-cov = "*"
+pytest-env = "*"
+python-dotenv-run = "*"
+pytest-dotenv = "*"
+httpretty = "*"
+
+[packages]
+uvloop = {version = "*", markers = "sys_platform != 'win32' and sys_platform != 'cygwin' and platform_python_implementation != 'PyPy'"}
+httptools = {version = "*", markers = "sys_platform != 'win32' and sys_platform != 'cygwin' and platform_python_implementation != 'PyPy'"}
+fastapi = "*"
+uvicorn = "*"
+pyjwt = "*"
+python-multipart = "*"
+email-validator = "*"
+requests = "*"
+passlib = {extras = ["bcrypt"], version = "*"}
+pydantic = "*"
+emails = "*"
+sentry-sdk = "*"
+pyyaml = "*"
+dataclasses = "*"
+idna-ssl = "*"
+python-json-logger = "*"
+aiohttp = "<4"
+aiohttp-retry = "*"
+google-cloud-firestore = "*"
+firebase-admin = "*"
+tenacity = "*"
+aresponses = "*"
+aioresponses = "*"
+google-cloud-storage = "*"
+sendgrid = "*"
+cryptography = "*"
+inflection = "*"
+deepdiff = "*"
+typing-extensions = "*"
+google-auth = "*"
+python-jose = {extras = ["cryptography"], version = "*"}
+boto3 = "*"
+deprecated = "*"
+shortuuid = "*"
+pytest-dynamodb = "*"
+python-ulid = "*"
+simplejson = "*"
+elasticsearch = "*"
+requests-aws4auth = "*"
+filetype = "*"
+pymupdf = "*"
+azure-servicebus = "*"
+azure-storage-blob = "*"
+pymongo = "*"
+fastapi-mail = "*"

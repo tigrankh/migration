@@ -72,9 +72,9 @@ user_cfg = {
 }
 
 document_cfgs = [
-    # content_item_cfg,
+    content_item_cfg,
     # content_segment_cfg,
-    content_rendition_cfg,
+    #content_rendition_cfg,
     # organization_cfg,
     # user_cfg,
 ]
