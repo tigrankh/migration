@@ -310,7 +310,7 @@ class MigrationController:
             )
 
             return query_res
-        else:
+        elif self.current_doc_cfg is not None:
             self.fetch()
 
     def container_monitor(self):
