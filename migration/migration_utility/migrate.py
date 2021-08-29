@@ -29,7 +29,7 @@ def main():
         document_configs=document_config_models,
     )
 
-    if len(sys.argv) and sys.argv[0] == "reset":
+    if len(sys.argv) and sys.argv[1] == "reset":
         reset_migration = True
     else:
         reset_migration = False
