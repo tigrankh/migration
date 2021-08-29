@@ -264,7 +264,7 @@ class MigrationController:
         while i < 3:
             logging.info(f"Retrying fetch operation with delays. Iteration #{i+1}")
             time.sleep((i + 1) * 120)  # Delaying for minimum 2 minutes
-
+            i += 1
             try:
                 query_res = self.source_db_client.find(
                     collection_name=self.current_doc_cfg.collection_name,
