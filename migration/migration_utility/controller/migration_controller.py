@@ -295,7 +295,7 @@ class MigrationController:
     def insert_fetch_update_cycle(self):
         """Sync function for alternative lifecycle"""
 
-        if self.container_manager.data_exists:
+        while self.container_manager.data_exists:
             query_res = self.insert()
 
             # Suspicion is that on EC2, batch_update happens faster than fetch does
@@ -308,8 +308,6 @@ class MigrationController:
                 collection_name=self.current_doc_cfg.collection_name,
                 updates=self._generate_migration_marks(query_res.inserted_document_ids),
             )
-
-            return query_res
 
     def container_monitor(self):
         """Check whether or not the containers are full."""
