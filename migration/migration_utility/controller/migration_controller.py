@@ -162,7 +162,7 @@ class MigrationController:
                 find_all=find_all
             )
         except RetryableFetchingError:
-            query_result = self.retry_fetch()
+            query_result = self.retry_fetch(find_all=find_all)
 
         self.container_manager.add_documents(documents=query_result.documents)
 
