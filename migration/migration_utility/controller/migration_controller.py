@@ -228,6 +228,17 @@ class MigrationController:
 
             return query_res
 
+    def reset_migration(self):
+        curr_collection_name = self.current_doc_cfg.collection_name
+        query_res = self.fetch()
+
+        id_list = [doc.get("id") for doc in query_res.matched_docs]
+
+        self.source_db_client.batch_update(
+            collection_name=curr_collection_name,
+            updates=self._reset_migration_marks(id_list=id_list),
+        )
+
     def retry_insert(self):
         """Retries insertion of documents that failed during previous iteration."""
 
@@ -327,7 +338,17 @@ class MigrationController:
 
         return migration_marks
 
-    def migrate(self):
+    def _reset_migration_marks(self, id_list: List[str]) -> List[dict]:
+        """Resets migration marks for migrated documents."""
+
+        migration_marks = []
+
+        for doc_id in id_list:
+            migration_marks.append({"id": doc_id, "is_migrated": False})
+
+        return migration_marks
+
+    def migrate(self, reset_documents: bool = False):
         """Script that starts the migration procedure."""
 
         logging.info(f"Initiating migration operation...")
@@ -336,8 +357,10 @@ class MigrationController:
         self.fetch()
 
         while self.current_doc_cfg is not None:
-            #asyncio.run(self.insert_fetch_cycle())
-            self.insert_fetch_update_cycle()
+            if reset_documents:
+                self.reset_migration()
+            else:
+                self.insert_fetch_update_cycle()
 
         # 2. create task to write into destination
         # 3. create task to read a new batch from source

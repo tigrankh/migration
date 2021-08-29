@@ -11,6 +11,7 @@ from migration.migration_utility.configuration.document_configuration import (
 from migration.migration_utility.controller.migration_controller import (
     MigrationController,
 )
+import sys
 
 
 def main():
@@ -28,7 +29,12 @@ def main():
         document_configs=document_config_models,
     )
 
-    migration_ctrl.migrate()
+    if len(sys.argv) and sys.argv[0] == "reset":
+        reset_documents = True
+    else:
+        reset_documents = False
+
+    migration_ctrl.migrate(reset_documents=reset_documents)
 
 
 if __name__ == "__main__":
