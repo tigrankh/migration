@@ -353,15 +353,15 @@ class MigrationController:
     def migrate(self, reset_migration: bool = False):
         """Script that starts the migration procedure."""
 
-        logging.info(f"Initiating migration operation...")
-
         # First run initializes containers
         self.fetch()
 
         while self.current_doc_cfg is not None:
             if reset_migration:
+                logging.info(f"Initiating RESET of migration...")
                 self.reset_migration()
             else:
+                logging.info(f"Initiating migration operation...")
                 self.insert_fetch_update_cycle()
 
         # 2. create task to write into destination
