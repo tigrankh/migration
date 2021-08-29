@@ -354,7 +354,7 @@ class MigrationController:
         """Script that starts the migration procedure."""
 
         # First run initializes containers
-        self.fetch()
+        self.fetch(find_all=reset_migration)
 
         while self.current_doc_cfg is not None:
             if reset_migration:
