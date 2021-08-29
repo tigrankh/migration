@@ -30,11 +30,11 @@ def main():
     )
 
     if len(sys.argv) and sys.argv[0] == "reset":
-        reset_documents = True
+        reset_migration = True
     else:
-        reset_documents = False
+        reset_migration = False
 
-    migration_ctrl.migrate(reset_documents=reset_documents)
+    migration_ctrl.migrate(reset_migration=reset_migration)
 
 
 if __name__ == "__main__":
