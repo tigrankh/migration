@@ -233,7 +233,7 @@ class MigrationController:
         curr_collection_name = self.current_doc_cfg.collection_name
         query_res = self.fetch(find_all=True)
 
-        id_list = [doc.get("id") for doc in query_res.matched_docs]
+        id_list = [doc.get("id") for doc in query_res.documents]
 
         self.source_db_client.batch_update(
             collection_name=curr_collection_name,
