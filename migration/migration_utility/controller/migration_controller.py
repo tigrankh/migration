@@ -292,6 +292,25 @@ class MigrationController:
         await loop.run_in_executor(None, self.insert_update)
         await loop.run_in_executor(None, self.fetch)
 
+    def insert_fetch_update_cycle(self):
+        """Sync function for alternative lifecycle"""
+
+        if self.container_manager.data_exists:
+            query_res = self.insert()
+
+            # Suspicion is that on EC2, batch_update happens faster than fetch does
+            # Which is causing the LastEvaluatedKey to be invalidated, since its out of the query results due to
+            # is_migrated = True field.
+            # So we do a synchronous fetch in here to avoid issues
+            self.fetch()
+
+            self.source_db_client.batch_update(
+                collection_name=self.current_doc_cfg.collection_name,
+                updates=self._generate_migration_marks(query_res.inserted_document_ids),
+            )
+
+            return query_res
+
     def container_monitor(self):
         """Check whether or not the containers are full."""
 
@@ -314,7 +333,8 @@ class MigrationController:
         self.fetch()
 
         while self.current_doc_cfg is not None:
-            asyncio.run(self.insert_fetch_cycle())
+            #asyncio.run(self.insert_fetch_cycle())
+            self.insert_fetch_update_cycle()
 
         # 2. create task to write into destination
         # 3. create task to read a new batch from source
