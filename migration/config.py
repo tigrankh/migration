@@ -27,12 +27,17 @@ content_segment_cfg = {
     "dominant_type": "content_item",
     "queries": [
         {
+            "field_name": "model_type",
+            "operation": "eq",
+            "value": "CONTENT_SEGMENT",
+        },
+        {
             "field_name": "created_at",
             "operation": "gte",
             "value": "2021-06-09T00:00:00+00:00",
         }
     ],
-    "query_index_name": "created-at-index",
+    "query_index_name": "redacted-content-items-fargate-test",
 }
 
 content_rendition_cfg = {
@@ -51,7 +56,7 @@ content_rendition_cfg = {
             "value": "2021-02-01T00:00:00+00:00",
         },
     ],
-    "query_index_name": "created-at-index",
+    "query_index_name": "redacted-content-items-fargate-test",
 }
 
 organization_cfg = {
@@ -64,11 +69,20 @@ organization_cfg = {
             "value": "ORGANIZATION",
         }
     ],
+    "query_index_name": "redacted-content-items-fargate-test"
 }
 
 user_cfg = {
     "type": "user",
     "collection_name": "redacted-users-fargate-test",
+    "queries": [
+        {
+            "field_name": "model_type",
+            "operation": "eq",
+            "value": "USER",
+        }
+    ],
+    "query_index_name": "redacted-content-items-fargate-test"
 }
 
 document_cfgs = [
