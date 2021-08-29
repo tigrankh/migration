@@ -297,6 +297,7 @@ class MigrationController:
 
         if self.container_manager.data_exists:
             query_res = self.insert()
+            curr_collection_name = self.current_doc_cfg.collection_name
 
             # Suspicion is that on EC2, batch_update happens faster than fetch does
             # Which is causing the LastEvaluatedKey to be invalidated, since its out of the query results due to
@@ -305,7 +306,7 @@ class MigrationController:
             self.fetch()
 
             self.source_db_client.batch_update(
-                collection_name=self.current_doc_cfg.collection_name,
+                collection_name=curr_collection_name,
                 updates=self._generate_migration_marks(query_res.inserted_document_ids),
             )
 
