@@ -148,6 +148,7 @@ class DynamoDbClient(GenericClient):
         collection_name: str,
         queries: List[FieldQuery],
         query_index_name: str = None,
+        find_all: bool = False
     ) -> ReadQueryResult:
         """Queries documents in the database, based on the collection name and queries.
 
@@ -167,6 +168,7 @@ class DynamoDbClient(GenericClient):
             collection_name=collection_name,
             key_or_filter_expression=merged_key_condition,
             query_index_name=query_index_name,
+            find_all=find_all
         )
 
         return ReadQueryResult(
@@ -179,7 +181,7 @@ class DynamoDbClient(GenericClient):
         """find doc."""
 
     def _fetch_document_batch(
-        self, collection_name: str, key_or_filter_expression, query_index_name: str
+        self, collection_name: str, key_or_filter_expression, query_index_name: str, find_all: bool = False
     ) -> List[dict]:
         """Runs iterations of queries in the database, until the configured number of
         documents (batch_size) is not read.
@@ -201,6 +203,7 @@ class DynamoDbClient(GenericClient):
                 query_index_name=query_index_name,
                 document_count=self._batch_size,
                 last_document_id_data=self._last_evaluated_key,
+                find_all=find_all
             )
         )
 
@@ -212,6 +215,7 @@ class DynamoDbClient(GenericClient):
                     query_index_name=query_index_name,
                     last_document_id_data=self._last_evaluated_key,
                     document_count=self._batch_size - len(fetched_documents),
+                    find_all=find_all
                 )
             )
 
@@ -227,6 +231,7 @@ class DynamoDbClient(GenericClient):
         last_document_id_data: dict = None,
         document_count: int = None,
         check_migration_status: bool = True,
+        find_all: bool = False
     ) -> List[dict]:
         """Runs a single query in the database, based on the collection name and queries.
 
@@ -247,7 +252,7 @@ class DynamoDbClient(GenericClient):
             common_query_settings["ExclusiveStartKey"] = last_document_id_data
         if document_count:
             common_query_settings["Limit"] = document_count
-        if check_migration_status:
+        if check_migration_status and not find_all:
             common_query_settings["FilterExpression"] = Attr("is_migrated").ne(True)
 
         try:

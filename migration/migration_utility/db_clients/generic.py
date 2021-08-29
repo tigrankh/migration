@@ -80,7 +80,7 @@ class GenericClient(ABC):
 
     @abstractmethod
     def find(
-        self, collection_name: str, queries: List[FieldQuery], query_index_name: str
+        self, collection_name: str, queries: List[FieldQuery], query_index_name: str, find_all: bool = False
     ) -> ReadQueryResult:
         """
         Abstract method which will return documents from collection based on the query param

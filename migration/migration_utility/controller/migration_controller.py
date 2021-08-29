@@ -143,7 +143,7 @@ class MigrationController:
 
         return self.source_db_client, self.destination_db_client, self.internal_db_client
 
-    def fetch(self) -> ReadQueryResult:
+    def fetch(self, find_all: bool = False) -> ReadQueryResult:
         """Fetches documents from the source database."""
 
         self.source_db_client.set_last_document(last_document=self.last_document)
@@ -159,6 +159,7 @@ class MigrationController:
                 collection_name=self.current_doc_cfg.collection_name,
                 queries=self.current_doc_cfg.queries,
                 query_index_name=self.current_doc_cfg.query_index_name,
+                find_all=find_all
             )
         except RetryableFetchingError:
             query_result = self.retry_fetch()
@@ -230,7 +231,7 @@ class MigrationController:
 
     def reset_migration(self):
         curr_collection_name = self.current_doc_cfg.collection_name
-        query_res = self.fetch()
+        query_res = self.fetch(find_all=True)
 
         id_list = [doc.get("id") for doc in query_res.matched_docs]
 
@@ -267,7 +268,7 @@ class MigrationController:
 
             i += 1
 
-    def retry_fetch(self):
+    def retry_fetch(self, find_all: bool = False):
         """Retries fetch operation."""
 
         i = 0
@@ -281,6 +282,7 @@ class MigrationController:
                     collection_name=self.current_doc_cfg.collection_name,
                     queries=self.current_doc_cfg.queries,
                     query_index_name=self.current_doc_cfg.query_index_name,
+                    find_all=find_all
                 )
 
                 return query_res
@@ -348,7 +350,7 @@ class MigrationController:
 
         return migration_marks
 
-    def migrate(self, reset_documents: bool = False):
+    def migrate(self, reset_migration: bool = False):
         """Script that starts the migration procedure."""
 
         logging.info(f"Initiating migration operation...")
@@ -357,7 +359,7 @@ class MigrationController:
         self.fetch()
 
         while self.current_doc_cfg is not None:
-            if reset_documents:
+            if reset_migration:
                 self.reset_migration()
             else:
                 self.insert_fetch_update_cycle()
