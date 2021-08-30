@@ -28,6 +28,12 @@ class GenericClient(ABC):
 
         raise NotImplementedError("Method should be overwritten")
 
+    @property
+    @abstractmethod
+    def last_fetched_key(self):
+        """Returns last fetched key"""
+        raise NotImplementedError("Method should be overwritten")
+
     @abstractmethod
     def batch_write(
         self, collection_name: str, documents: List[dict]

@@ -127,16 +127,19 @@ class MigrationController:
         return self._internal_db_client
 
     @property
-    def last_document(self) -> dict:
+    def last_fetched_key(self) -> dict:
         """Returns the latest evaluated document."""
 
-        return (
-            self.internal_db_client.find_document(
-                collection_name=self.current_doc_cfg.collection_name,
-                doc_id="LastEvaluatedKey",
+        if not self.source_db_client.last_fetched_key:
+            self.source_db_client.set_last_document(
+                self.internal_db_client.find_document(
+                    collection_name=self.current_doc_cfg.collection_name,
+                    doc_id="LastEvaluatedKey",
+                )
+                or {}
             )
-            or {}
-        )
+
+        return self.source_db_client.last_fetched_key
 
     def connect(self) -> tuple:
         """Connects to all databases by calling client creation."""
@@ -146,7 +149,7 @@ class MigrationController:
     def fetch(self, find_all: bool = False) -> ReadQueryResult:
         """Fetches documents from the source database."""
 
-        self.source_db_client.set_last_document(last_document=self.last_document)
+        self.source_db_client.set_last_document(last_document=self.last_fetched_key)
 
         if self.current_doc_cfg.all_fetched is True:
             self.current_doc_cfg = self.next_document_configuration

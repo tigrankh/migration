@@ -54,6 +54,12 @@ class DynamoDbClient(GenericClient):
 
         return self._resource_connector
 
+    @property
+    def last_fetched_key(self) -> dict:
+        """Returns last evaluated key"""
+
+        return self._last_evaluated_key
+
     def set_last_document(self, last_document: Union[dict, None]):
         """Sets data of the last document for pagination purposes.
 
