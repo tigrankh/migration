@@ -77,6 +77,8 @@ class DynamoDbClient(GenericClient):
                 "created_at": last_document["created_at"],
                 "id": last_document["id"],
             }
+        else:
+            self._last_evaluated_key = None
 
     def batch_write(
         self, collection_name: str, documents: List[dict]
