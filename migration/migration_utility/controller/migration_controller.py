@@ -245,6 +245,8 @@ class MigrationController:
             updates=self._reset_migration_marks(id_list=id_list),
         )
 
+        self.container_manager.empty_transit_bucket()
+
     def retry_insert(self):
         """Retries insertion of documents that failed during previous iteration."""
 
