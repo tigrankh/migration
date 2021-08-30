@@ -289,6 +289,7 @@ class DynamoDbClient(GenericClient):
             raise RetryableFetchingError from exc
 
         self._last_evaluated_key = query_response.get("LastEvaluatedKey")
+        logging.info(f"TEST::lek={self._last_evaluated_key}")
 
         logging.info(
             f"Fetched {len(query_response['Items'])} from collection {collection_name}"
