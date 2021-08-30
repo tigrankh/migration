@@ -323,6 +323,8 @@ class MigrationController:
             # So we do a synchronous fetch in here to avoid issues
             self.fetch()
 
+            time.sleep(3)
+
             self.source_db_client.batch_update(
                 collection_name=curr_collection_name,
                 updates=self._generate_migration_marks(query_res.inserted_document_ids),

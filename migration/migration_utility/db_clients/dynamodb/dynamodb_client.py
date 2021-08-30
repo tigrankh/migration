@@ -1,3 +1,4 @@
+import time
 from math import ceil
 
 from migration.migration_utility import logging
@@ -15,7 +16,7 @@ from boto3.dynamodb.conditions import Attr
 
 from migration.migration_utility.db_clients.dynamodb.data_types import FieldQuery
 from migration_utility.data_types import ReadQueryResult, WriteQueryResult
-from migration_utility.exceptions import RetryableFetchingError
+from migration_utility.exceptions import RetryableFetchingError, RetryableBatchUpdateError
 
 
 class DynamoDbClient(GenericClient):
@@ -136,6 +137,7 @@ class DynamoDbClient(GenericClient):
         num_partitions = ceil(len(updates) / 25)
 
         for i in range(num_partitions):
+            logging.info(f"Updating partition #{i+1} in collection={collection_name}")
             self._partitioned_batch_update(
                 collection_name=collection_name, updates=updates[25 * i : 25 * i + 25]
             )
@@ -409,4 +411,21 @@ class DynamoDbClient(GenericClient):
 
             transact_items.append(transact_item)
 
-        self.client_connector.transact_write_items(TransactItems=transact_items)
+        try:
+            self.client_connector.transact_write_items(TransactItems=transact_items)
+        except ClientError as exc:
+            if exc.response["Error"]["Code"] != "ValidationError":
+                i = 0
+
+                while i < 3:
+                    i += 1
+                    logging.info(f"Batch update attempt #{i} started...")
+
+                    time.sleep(i * 60)
+
+                    try:
+                        self.client_connector.transact_write_items(TransactItems=transact_items)
+                        return
+                    except ClientError:
+                        logging.info(f"Batch update attempt #{i} failed...")
+                        continue
