@@ -236,7 +236,7 @@ class MigrationController:
         curr_collection_name = self.current_doc_cfg.collection_name
         self.container_manager.primary_to_transit_bucket()
 
-        time.sleep(2)
+        time.sleep(0.5)
 
         id_list = [doc.get("id") for doc in self.container_manager.transit_bucket]
 
@@ -325,7 +325,7 @@ class MigrationController:
             # So we do a synchronous fetch in here to avoid issues
             self.fetch()
 
-            time.sleep(3)
+            time.sleep(0.5)
 
             self.source_db_client.batch_update(
                 collection_name=curr_collection_name,
