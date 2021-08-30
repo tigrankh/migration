@@ -130,7 +130,7 @@ class MigrationController:
     def last_fetched_key(self) -> dict:
         """Returns the latest evaluated document."""
 
-        if not self.source_db_client.last_fetched_key:
+        if not self.source_db_client.last_fetched_key and not self.current_doc_cfg.all_fetched:
             self.source_db_client.set_last_document(
                 self.internal_db_client.find_document(
                     collection_name=self.current_doc_cfg.collection_name,
