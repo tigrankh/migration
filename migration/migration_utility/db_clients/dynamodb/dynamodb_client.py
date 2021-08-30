@@ -429,3 +429,5 @@ class DynamoDbClient(GenericClient):
                     except ClientError:
                         logging.info(f"Batch update attempt #{i} failed...")
                         continue
+
+                logging.info(f"Failed to finish the following transaction --> {transact_items}")
