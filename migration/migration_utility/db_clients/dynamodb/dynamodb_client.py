@@ -16,7 +16,7 @@ from boto3.dynamodb.conditions import Attr
 
 from migration.migration_utility.db_clients.dynamodb.data_types import FieldQuery
 from migration_utility.data_types import ReadQueryResult, WriteQueryResult
-from migration_utility.exceptions import RetryableFetchingError, RetryableBatchUpdateError
+from migration_utility.exceptions import RetryableFetchingError
 
 
 class DynamoDbClient(GenericClient):
