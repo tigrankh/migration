@@ -40,6 +40,9 @@ class MongoDbClient(GenericClient):
     def set_last_document(self, last_document: dict):
         """setting."""
 
+    def last_fetched_key(self):
+        """last"""
+
     def batch_write(
         self, collection_name: str, documents: List[dict]
     ) -> WriteQueryResult:
