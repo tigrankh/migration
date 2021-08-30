@@ -236,7 +236,7 @@ class MigrationController:
         curr_collection_name = self.current_doc_cfg.collection_name
         query_res = self.fetch(find_all=True)
 
-        time.sleep(5)
+        time.sleep(2)
 
         id_list = [doc.get("id") for doc in query_res.documents]
 
