@@ -365,7 +365,7 @@ class MigrationController:
             if reset_migration:
                 logging.info(f"Initiating RESET of migration...")
                 self.reset_migration()
-                self.fetch()
+                self.fetch(find_all=True)
             else:
                 logging.info(f"Initiating migration operation...")
                 self.insert_fetch_update_cycle()
