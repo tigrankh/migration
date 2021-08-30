@@ -1,4 +1,4 @@
-from migration_utility.data_types import FieldQuery
+import os
 from migration_utility.enums import Databases, FieldQueryOperation
 
 # DOCUMENT CONFIGURATION SECTION
@@ -16,7 +16,7 @@ content_item_cfg = {
         {
             "field_name": "created_at",
             "operation": "gte",
-            "value": "2021-08-15T00:00:00+00:00",
+            "value": "2021-06-09T00:00:00+00:00",
         },
     ],
 }
@@ -37,7 +37,7 @@ content_segment_cfg = {
             "value": "2021-06-09T00:00:00+00:00",
         }
     ],
-    "query_index_name": "redacted-content-items-fargate-test",
+    "query_index_name": "model-type-created-at-index",
 }
 
 content_rendition_cfg = {
@@ -53,10 +53,10 @@ content_rendition_cfg = {
         {
             "field_name": "created_at",
             "operation": "gte",
-            "value": "2021-02-01T00:00:00+00:00",
+            "value": "2021-06-09T00:00:00+00:00",
         },
     ],
-    "query_index_name": "redacted-content-items-fargate-test",
+    "query_index_name": "model-type-created-at-index",
 }
 
 organization_cfg = {
@@ -69,7 +69,7 @@ organization_cfg = {
             "value": "ORGANIZATION",
         }
     ],
-    "query_index_name": "redacted-content-items-fargate-test"
+    "query_index_name": "model-type-created-at-index"
 }
 
 user_cfg = {
@@ -82,7 +82,7 @@ user_cfg = {
             "value": "USER",
         }
     ],
-    "query_index_name": "redacted-content-items-fargate-test"
+    "query_index_name": "model-type-created-at-index"
 }
 
 document_cfgs = [
@@ -97,14 +97,17 @@ document_cfgs = [
 # DB CONFIGURATION SECTION
 source_db_cfg = {
     "database": Databases.DYNAMODB,
+    "batch_size": 10
 }
 destination_db_cfg = {
     "database": Databases.MONGODB,
     "database_name": "migrated_db",
-    "connection_string": "<>"
+    "batch_size": 10,
+    "connection_string": os.environ.get("DEST_CONN_STR"),
 }
 internal_db_cfg = {
     "database": Databases.MONGODB,
     "database_name": "internal_db",
-    "connection_string": "<>"
+    "batch_size": 10,
+    "connection_string": os.environ.get("INT_CONN_STR")
 }
