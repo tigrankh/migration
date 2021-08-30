@@ -32,6 +32,9 @@ class DocumentConfiguration(BaseModel):
     all_inserted: bool = Field(
         None, description="indicates whether the current collection was inserted or not"
     )
+    num_migrated: int = Field(
+        0, description="number of migrated documents"
+    )
 
     def export_cancelled_doc_info(
         self, cancelled_documents: List[dict], exc_info: dict

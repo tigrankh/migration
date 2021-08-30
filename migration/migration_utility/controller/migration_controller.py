@@ -192,6 +192,10 @@ class MigrationController:
                 collection_name=self.current_doc_cfg.collection_name,
                 documents=self.container_manager.transit_bucket,
             )
+            self.current_doc_cfg.num_migrated += len(query_res.inserted_document_ids)
+            logging.info(f"Total number of inserted documents "
+                         f"for {self.current_doc_cfg.collection_name} is {self.current_doc_cfg.num_migrated}")
+
             self.container_manager.check_move_to_retry_bucket(
                 id_list=query_res.inserted_document_ids
             )
