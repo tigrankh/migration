@@ -125,17 +125,17 @@ document_cfgs = [
 # DB CONFIGURATION SECTION
 source_db_cfg = {
     "database": Databases.DYNAMODB,
-    "batch_size": 20
+    "batch_size": 50
 }
 destination_db_cfg = {
     "database": Databases.MONGODB,
-    "database_name": "migrated_db",
-    "batch_size": 20,
+    "database_name": f"redacted-ai-{os.environ.get('PROJECT_ID')}",
+    "batch_size": 50,
     "connection_string": os.environ.get("DEST_CONN_STR"),
 }
 internal_db_cfg = {
     "database": Databases.MONGODB,
     "database_name": "internal_db",
-    "batch_size": 20,
+    "batch_size": 50,
     "connection_string": os.environ.get("INT_CONN_STR")
 }
