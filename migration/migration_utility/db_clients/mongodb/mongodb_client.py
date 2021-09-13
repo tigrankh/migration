@@ -61,7 +61,7 @@ class MongoDbClient(GenericClient):
         try:
             logging.info(f"Starting insertion...")
 
-            response = self.client_connector[collection_name].update_many(documents, upsert=True)
+            response = self.client_connector[collection_name].insert_many(documents)
 
             logging.info(f"Insertion successfully finished...")
             logging.info(
