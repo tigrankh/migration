@@ -1,6 +1,6 @@
 import asyncio
 import time
-
+from datetime import datetime, timezone
 from migration.migration_utility import logging
 from typing import List
 
@@ -316,7 +316,7 @@ class MigrationController:
         await loop.run_in_executor(None, self.insert_update)
         await loop.run_in_executor(None, self.fetch)
 
-    def insert_fetch_update_cycle(self):
+    def insert_fetch_update_cycle(self, find_all: bool = False):
         """Sync function for alternative lifecycle"""
 
         if self.container_manager.data_exists:
@@ -327,7 +327,7 @@ class MigrationController:
             # Which is causing the LastEvaluatedKey to be invalidated, since its out of the query results due to
             # is_migrated = True field.
             # So we do a synchronous fetch in here to avoid issues
-            self.fetch()
+            self.fetch(find_all=find_all)
 
             time.sleep(0.5)
 
@@ -338,7 +338,7 @@ class MigrationController:
 
             return query_res
         elif self.current_doc_cfg is not None:
-            self.fetch()
+            self.fetch(find_all=find_all)
 
     def container_monitor(self):
         """Check whether or not the containers are full."""
@@ -349,7 +349,13 @@ class MigrationController:
         migration_marks = []
 
         for doc_id in id_list:
-            migration_marks.append({"id": doc_id, "is_migrated": True})
+            migration_marks.append(
+                {
+                    "id": doc_id,
+                    "is_migrated": True,
+                    "migrated_at": datetime.now(timezone.utc).isoformat(timespec="microseconds")
+                }
+            )
 
         return migration_marks
 
@@ -363,11 +369,11 @@ class MigrationController:
 
         return migration_marks
 
-    def migrate(self, reset_migration: bool = False):
+    def migrate(self, reset_migration: bool = False, force_migration: bool = False):
         """Script that starts the migration procedure."""
 
         # First run initializes containers
-        self.fetch(find_all=reset_migration)
+        self.fetch(find_all=reset_migration or force_migration)
 
         while self.current_doc_cfg is not None:
             if reset_migration:
@@ -376,5 +382,5 @@ class MigrationController:
                 self.fetch(find_all=True)
             else:
                 logging.info(f"Initiating migration operation...")
-                self.insert_fetch_update_cycle()
+                self.insert_fetch_update_cycle(find_all=force_migration)
 

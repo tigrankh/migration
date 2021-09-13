@@ -29,12 +29,14 @@ def main():
         document_configs=document_config_models,
     )
 
-    if len(sys.argv) == 2 and sys.argv[1] == "reset":
-        reset_migration = True
+    if len(sys.argv) == 2:
+        reset_migration = sys.argv[1] == "reset"
+        force_migration = sys.argv[1] == "force"
     else:
         reset_migration = False
+        force_migration = False
 
-    migration_ctrl.migrate(reset_migration=reset_migration)
+    migration_ctrl.migrate(reset_migration=reset_migration, force_migration=force_migration)
 
 
 if __name__ == "__main__":
