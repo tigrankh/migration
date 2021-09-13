@@ -378,7 +378,3 @@ class MigrationController:
                 logging.info(f"Initiating migration operation...")
                 self.insert_fetch_update_cycle()
 
-        # 2. create task to write into destination
-        # 3. create task to read a new batch from source
-        # 4. await writer
-        # 5. await reader
