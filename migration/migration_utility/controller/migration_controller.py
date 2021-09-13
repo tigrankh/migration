@@ -219,7 +219,8 @@ class MigrationController:
 
             query_res = WriteQueryResult(
                 inserted_document_ids=[doc.get("id") for doc in exc.inserted_documents],
-                processed_count=len(exc.inserted_documents)
+                processed_count=len(exc.inserted_documents),
+                processed_document_ids=[doc["_id"] for doc in exc.inserted_documents]
             )
 
         return query_res
@@ -334,7 +335,7 @@ class MigrationController:
 
             self.source_db_client.batch_update(
                 collection_name=curr_collection_name,
-                updates=self._generate_migration_marks(query_res.inserted_document_ids),
+                updates=self._generate_migration_marks(query_res.processed_document_ids),
             )
 
             return query_res

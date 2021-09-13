@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import List, Union
 
 from migration_utility.data_types import ReadQueryResult, WriteQueryResult
@@ -101,7 +102,8 @@ class MongoDbClient(GenericClient):
 
         return WriteQueryResult(
             inserted_document_ids=list(response.upserted_ids.values()),
-            processed_count=processed_count
+            processed_count=processed_count,
+            processed_document_ids=[doc["_id"] for doc in documents[:processed_count]]
         )
 
     def batch_update(
@@ -169,7 +171,7 @@ class MongoDbClient(GenericClient):
 
         bulk_list = []
 
-        for doc in documents:
+        for doc in deepcopy(documents):
             doc_id = doc["_id"]
 
             if doc.get("is_migrated") is True:

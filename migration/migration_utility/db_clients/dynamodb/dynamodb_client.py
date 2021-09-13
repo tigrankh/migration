@@ -121,7 +121,8 @@ class DynamoDbClient(GenericClient):
 
         return WriteQueryResult(
             inserted_document_ids=inserted_document_ids,
-            processed_count=len(inserted_document_ids)
+            processed_count=len(inserted_document_ids),
+            processed_document_ids=inserted_document_ids
         )
 
     def batch_update(self, collection_name: str, updates: List[dict]):

@@ -51,3 +51,6 @@ class WriteQueryResult(BaseModel):
     processed_count: int = Field(
         ..., description="number of documents that were acknowledged but not necessarily inserted"
     )
+    processed_document_ids: List[str] = Field(
+        ..., description="list of processed documents, upserted and matched"
+    )
