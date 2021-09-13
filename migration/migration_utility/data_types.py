@@ -48,3 +48,6 @@ class WriteQueryResult(BaseModel):
     inserted_document_ids: List[str] = Field(
         ..., description="list of document ids written into the database"
     )
+    processed_count: int = Field(
+        ..., description="number of documents that were acknowledged but not necessarily inserted"
+    )

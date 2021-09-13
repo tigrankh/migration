@@ -192,12 +192,12 @@ class MigrationController:
                 collection_name=self.current_doc_cfg.collection_name,
                 documents=self.container_manager.transit_bucket,
             )
-            self.current_doc_cfg.num_migrated += len(query_res.inserted_document_ids)
+            self.current_doc_cfg.num_migrated += query_res.processed_count
             logging.info(f"Total number of inserted documents "
                          f"for {self.current_doc_cfg.collection_name} is {self.current_doc_cfg.num_migrated}")
 
             self.container_manager.check_move_to_retry_bucket(
-                id_list=query_res.inserted_document_ids
+                id_list=[doc["id"] for doc in self.container_manager.transit_bucket[:query_res.processed_count]]
             )
 
             # Will be retried only if there are items in the retry_bucket
@@ -218,7 +218,8 @@ class MigrationController:
                 )
 
             query_res = WriteQueryResult(
-                inserted_document_ids=[doc.get("id") for doc in exc.inserted_documents]
+                inserted_document_ids=[doc.get("id") for doc in exc.inserted_documents],
+                processed_count=len(exc.inserted_documents)
             )
 
         return query_res

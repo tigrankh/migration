@@ -119,7 +119,10 @@ class DynamoDbClient(GenericClient):
                 f"when batch_write_item() was called on {collection_name} --> {exc}"
             )
 
-        return WriteQueryResult(inserted_document_ids=inserted_document_ids)
+        return WriteQueryResult(
+            inserted_document_ids=inserted_document_ids,
+            processed_count=len(inserted_document_ids)
+        )
 
     def batch_update(self, collection_name: str, updates: List[dict]):
         """A method that performs a batch update operation.

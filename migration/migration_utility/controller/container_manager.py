@@ -108,6 +108,14 @@ class ContainerManager:
         ]
         self.transit_bucket = []
 
+    def transit_to_retry_bucket(self, id_list: List[str]):
+        """Moves documents from transit to retry bucket"""
+
+        self.retry_bucket = [
+            doc for doc in self.transit_bucket if doc.get("id") not in id_list
+        ]
+        self.transit_bucket = []
+
     def primary_to_transit_bucket(self):
         """Moves documents from the primary_bucket into transit_bucket for further
         pickup.

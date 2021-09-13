@@ -2,7 +2,7 @@ from typing import List, Union
 
 from migration_utility.data_types import ReadQueryResult, WriteQueryResult
 from migration_utility.db_clients.generic import GenericClient
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 from pymongo.errors import BulkWriteError
 from migration.migration_utility import logging
 from migration_utility.db_clients.mongodb.data_types import FieldQuery
@@ -57,33 +57,52 @@ class MongoDbClient(GenericClient):
         """
 
         documents = self._inject_id_field(documents=documents)
+        bulk_list = self._compose_bulk_update_payload(documents=documents)
 
         try:
             logging.info(f"Starting insertion...")
 
-            response = self.client_connector[collection_name].insert_many(documents)
+            response = self.client_connector[collection_name].bulk_write(bulk_list)
+
+            if not response.matched_count:
+                processed_count = response.upserted_count
+            elif response.matched_count == len(documents):
+                processed_count = response.matched_count
+            else:
+                processed_count = response.upserted_count + response.matched_count
 
             logging.info(f"Insertion successfully finished...")
             logging.info(
-                f"Inserted {len(response.inserted_ids)} documents into collection {collection_name}"
+                f"matched_count = {response.matched_count}; upserted_count = {response.upserted_count}; "
+                f"modified_count = {response.modified_count}\n"
+                f"Totally processed {processed_count} documents into collection {collection_name}"
             )
+
         except BulkWriteError as exc:
-            num_inserted = exc.details.get("nInserted")
+            if not exc.details.get("nMatched"):
+                processed_count = exc.details.get("nUpserted")
+            elif exc.details.get("nMatched") == len(documents):
+                processed_count = exc.details.get("nMatched")
+            else:
+                processed_count = exc.details.get("nUpserted") + exc.details.get("nMatched")
 
             logging.exception(
-                f"Insertion failed after inserting {num_inserted} document(s)"
+                f"Insertion failed after inserting {processed_count} document(s)"
             )
             logging.info(
                 f"Canceling insertion of the remaining batch into DESTINATION. "
                 f"Canceled document IDs will be saved in the internal database"
             )
             raise InsertionWasCancelledError(
-                cancelled_documents=documents[num_inserted:],
-                inserted_documents=documents[:num_inserted],
+                cancelled_documents=documents[processed_count:],
+                inserted_documents=documents[:processed_count],
                 exception_details=exc.details,
             ) from exc
 
-        return WriteQueryResult(inserted_document_ids=response.inserted_ids)
+        return WriteQueryResult(
+            inserted_document_ids=list(response.upserted_ids.values()),
+            processed_count=processed_count
+        )
 
     def batch_update(
         self, collection_name: str, updates: List[dict]
@@ -137,3 +156,32 @@ class MongoDbClient(GenericClient):
             doc["_id"] = doc["id"]
 
         return documents
+
+    def _compose_bulk_update_payload(self, documents: List[dict]) -> list:
+        """
+        Composes a payload for bulk write operation, where documents will be upserted
+        Args:
+            documents: list of documents to be written
+
+        Returns: list of bulk update items
+
+        """
+
+        bulk_list = []
+
+        for doc in documents:
+            doc_id = doc["_id"]
+
+            if doc.get("is_migrated") is True:
+                # Means this is actually an update
+                doc.pop("_id")
+
+            if doc.get("is_migrated"):
+                doc.pop("is_migrated")
+
+            if doc.get("migrated_at"):
+                doc.pop("migrated_at")
+
+            bulk_list.append(UpdateOne({"_id": doc_id}, {"$set": doc}, upsert=True))
+
+        return bulk_list

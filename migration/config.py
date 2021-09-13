@@ -113,12 +113,12 @@ allow_deny_keyword_cfg = {
 
 document_cfgs = [
     content_item_cfg,
-    content_segment_cfg,
-    content_rendition_cfg,
-    organization_cfg,
-    user_cfg,
-    allow_deny_list_cfg,
-    allow_deny_keyword_cfg
+    # content_segment_cfg,
+    # content_rendition_cfg,
+    # organization_cfg,
+    # user_cfg,
+    # allow_deny_list_cfg,
+    # allow_deny_keyword_cfg
 ]
 
 
