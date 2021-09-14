@@ -16,7 +16,11 @@ from migration.migration_utility.controller.migration_controller import (
 import sys
 
 
-def main(reset_migration: bool = False, force_migration: bool = False, id_list_path: str = None):
+def main(
+        reset_migration: bool = False,
+        force_migration: bool = False,
+        id_list_path: str = None
+):
     """main."""
 
     document_config_models = [DocumentConfiguration(**cfg) for cfg in document_cfgs]
@@ -40,11 +44,12 @@ if __name__ == "__main__":
     parser.add_argument("--reset", action="store_true", help="Resets all previously migrated documents to is_migrated=True state")
     parser.add_argument("--force", action="store_true", help="Forces a repeated migration over all documents")
     parser.add_argument("--id_list_path", default=None, help="Path to a file with list of IDs to migrate")
+    parser.add_argument("--flow", default="all", help="Specifies the migration flow")
 
     args = parser.parse_args()
 
     main(
         reset_migration=args.reset,
         force_migration=args.force,
-        id_list_path=args.id_list_path
+        id_list_path=args.id_list_path,
     )

@@ -6,6 +6,15 @@ from migration.migration_utility.data_types import FieldQuery
 from migration_utility.enums import MigrationStatus
 
 
+class RelatedDocument(BaseModel):
+    type: str = Field(
+        ..., description="type of a parent document"
+    )
+    relation_field: str = Field(
+        ..., description="Name of the relation field on teh current document"
+    )
+
+
 class DocumentConfiguration(BaseModel):
     """Doc."""
 
@@ -16,9 +25,9 @@ class DocumentConfiguration(BaseModel):
     collection_name: str = Field(
         ..., description="name of the database collection to read/write documents"
     )
-    dominant_type: str = Field(
+    related_document: RelatedDocument = Field(
         None,
-        description="name of the collection that should be read before the current one",
+        description="info of the related document",
     )
     queries: List[FieldQuery] = Field(
         None, description="query to find documents to migrate"
