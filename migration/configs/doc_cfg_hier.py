@@ -2,61 +2,50 @@ import os
 
 # DOCUMENT CONFIGURATION SECTION
 
-content_item_cfg = {
-    "type": "content_item",
-    "collection_name": f"redacted-content-items-{os.environ.get('PROJECT_ID')}",
-    "query_index_name": "model-type-created-at-index",
-    "queries": [
-        {
-            "field_name": "model_type",
-            "operation": "eq",
-            "value": "CONTENT_ITEM",
-        },
-        {
-            "field_name": "created_at",
-            "operation": "gte",
-            "value": "2021-06-09T00:00:00+00:00",
-        },
-    ],
-}
 
-content_segment_cfg = {
-    "type": "content_segment",
-    "collection_name": f"redacted-content-segments-{os.environ.get('PROJECT_ID')}",
-    "related_document": {"type": "content_item", "relation_field": "content_item_id"},
-    "queries": [
-        {
-            "field_name": "model_type",
-            "operation": "eq",
-            "value": "CONTENT_SEGMENT",
-        },
-        {
-            "field_name": "created_at",
-            "operation": "gte",
-            "value": "2021-06-09T00:00:00+00:00",
-        }
-    ],
-    "query_index_name": "model-type-created-at-index",
-}
+def get_content_item_relatives(content_item_id: str):
+    content_item_cfg = {
+        "type": "content_item",
+        "collection_name": f"redacted-content-items-{os.environ.get('PROJECT_ID')}",
+        "queries": [
+            {
+                "field_name": "id",
+                "operation": "eq",
+                "value": content_item_id,
+            }
+        ],
+    }
 
-content_rendition_cfg = {
-    "type": "content_rendition",
-    "collection_name": f"redacted-content-renditions-{os.environ.get('PROJECT_ID')}",
-    "related_document": {"type": "content_item", "relation_field": "content_item_id"},
-    "queries": [
-        {
-            "field_name": "model_type",
-            "operation": "eq",
-            "value": "CONTENT_RENDITION",
-        },
-        {
-            "field_name": "created_at",
-            "operation": "gte",
-            "value": "2021-06-09T00:00:00+00:00",
-        },
-    ],
-    "query_index_name": "model-type-created-at-index",
-}
+    content_segment_cfg = {
+        "type": "content_segment",
+        "collection_name": f"redacted-content-segments-{os.environ.get('PROJECT_ID')}",
+        "related_document": {"type": "content_item", "relation_field": "content_item_id"},
+        "queries": [
+            {
+                "field_name": "content_item_id",
+                "operation": "eq",
+                "value": content_item_id,
+            }
+        ],
+        "query_index_name": "content-item-index",
+    }
+
+    content_rendition_cfg = {
+        "type": "content_rendition",
+        "collection_name": f"redacted-content-renditions-{os.environ.get('PROJECT_ID')}",
+        "related_document": {"type": "content_item", "relation_field": "content_item_id"},
+        "queries": [
+            {
+                "field_name": "content_item_id",
+                "operation": "eq",
+                "value": content_item_id,
+            }
+        ],
+        "query_index_name": "content-item-index",
+    }
+
+    return [content_item_cfg, content_segment_cfg, content_rendition_cfg]
+
 
 organization_cfg = {
     "type": "organization",
@@ -110,10 +99,12 @@ allow_deny_keyword_cfg = {
     "query_index_name": "model-type-created-at-index"
 }
 
-document_cfgs = [
-    content_item_cfg,
-    content_segment_cfg,
-    content_rendition_cfg,
+document_cfgs = []
+
+for i in ["5b6ffa1d204a5bfc1d3dbe3ff135e066", "10eb13d1f1aa5d65f9de333a09ac6384"]:
+    document_cfgs.extend(get_content_item_relatives(i))
+
+document_cfgs += [
     organization_cfg,
     user_cfg,
     allow_deny_list_cfg,

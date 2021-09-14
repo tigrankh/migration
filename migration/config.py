@@ -1,8 +1,8 @@
 import os
 from migration_utility.enums import Databases, FieldQueryOperation
 
-from configs.doc_cfg_all import document_cfgs
-#from configs.doc_cfg_hier import document_cfgs
+#from configs.doc_cfg_all import document_cfgs
+from configs.doc_cfg_hier import document_cfgs
 
 # DB CONFIGURATION SECTION
 source_db_cfg = {
