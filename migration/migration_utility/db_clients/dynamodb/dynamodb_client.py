@@ -192,10 +192,11 @@ class DynamoDbClient(GenericClient):
 
         try:
             doc_data = self.resource_connector.Table(collection_name).get_item(Key={"id": doc_id})
+            documents = [doc_data.get("Item")] if doc_data.get("Item") else []
 
             return ReadQueryResult(
                 has_more=False,
-                documents=[doc_data.get("Item", {})],
+                documents=documents,
                 last_evaluated_key=None
             )
         except ClientError as exc:
