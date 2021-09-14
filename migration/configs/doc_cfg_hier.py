@@ -127,5 +127,18 @@ class HierarchicalConfig:
             "query_index_name": "model-type-created-at-index"
         }
 
-        return [organization_cfg, user_cfg, allow_deny_list_cfg, allow_deny_keyword_cfg]
+        content_collection_cfg = {
+            "type": "user",
+            "collection_name": f"redacted-content-collections-{os.environ.get('PROJECT_ID')}",
+            "queries": [
+                {
+                    "field_name": "model_type",
+                    "operation": "eq",
+                    "value": "CONTENT_COLLECTION",
+                }
+            ],
+            "query_index_name": "model-type-created-at-index"
+        }
+
+        return [organization_cfg, user_cfg, allow_deny_list_cfg, allow_deny_keyword_cfg, content_collection_cfg]
 

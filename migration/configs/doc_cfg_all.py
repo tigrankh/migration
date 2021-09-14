@@ -119,6 +119,19 @@ class FlatConfig:
             "query_index_name": "model-type-created-at-index"
         }
 
+        content_collection_cfg = {
+            "type": "user",
+            "collection_name": f"redacted-content-collections-{os.environ.get('PROJECT_ID')}",
+            "queries": [
+                {
+                    "field_name": "model_type",
+                    "operation": "eq",
+                    "value": "CONTENT_COLLECTION",
+                }
+            ],
+            "query_index_name": "model-type-created-at-index"
+        }
+
         return [
             content_item_cfg,
             content_segment_cfg,
@@ -126,5 +139,6 @@ class FlatConfig:
             user_cfg,
             organization_cfg,
             allow_deny_keyword_cfg,
-            allow_deny_list_cfg
+            allow_deny_list_cfg,
+            content_collection_cfg
         ]
