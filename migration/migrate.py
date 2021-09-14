@@ -1,3 +1,5 @@
+import argparse
+
 from migration.config import (
     document_cfgs,
     source_db_cfg,
@@ -14,7 +16,7 @@ from migration.migration_utility.controller.migration_controller import (
 import sys
 
 
-def main():
+def main(reset_migration: bool = False, force_migration: bool = False, id_list_path: str = None):
     """main."""
 
     document_config_models = [DocumentConfiguration(**cfg) for cfg in document_cfgs]
@@ -29,15 +31,20 @@ def main():
         document_configs=document_config_models,
     )
 
-    if len(sys.argv) == 2:
-        reset_migration = sys.argv[1] == "reset"
-        force_migration = sys.argv[1] == "force"
-    else:
-        reset_migration = False
-        force_migration = False
-
     migration_ctrl.migrate(reset_migration=reset_migration, force_migration=force_migration)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--reset", action="store_true", help="Resets all previously migrated documents to is_migrated=True state")
+    parser.add_argument("--force", action="store_true", help="Forces a repeated migration over all documents")
+    parser.add_argument("--id_list_path", default=None, help="Path to a file with list of IDs to migrate")
+
+    args = parser.parse_args()
+
+    main(
+        reset_migration=args.reset,
+        force_migration=args.force,
+        id_list_path=args.id_list_path
+    )
