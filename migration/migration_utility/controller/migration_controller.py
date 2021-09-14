@@ -52,6 +52,8 @@ class MigrationController:
         self._destination_db_client = None
         self._internal_db_client = None
 
+        self.migration_counter = 0
+
         self._document_configuration = None
 
         if not collections_to_migrate:
@@ -158,6 +160,10 @@ class MigrationController:
         self.source_db_client.set_last_document(last_document=self.last_fetched_key)
 
         if self.current_doc_cfg.all_fetched is True:
+            self.migration_counter += self.current_doc_cfg.num_migrated
+
+            logging.info(f"Total migrated: {self.migration_counter}")
+
             self.current_doc_cfg = self.next_document_configuration
 
             if self.current_doc_cfg is None:
