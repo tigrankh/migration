@@ -22,3 +22,10 @@ class MigrationStatus(str, Enum):
     """Enum with migration status."""
 
     CANCELLED = "cancelled"
+
+
+class FlowNames(str, Enum):
+    """Enum with flow names"""
+
+    FLAT = "flat"
+    HIERARCHICAL = "hierarchical"

@@ -74,7 +74,7 @@ user_cfg = {
 }
 
 allow_deny_list_cfg = {
-    "type": "user",
+    "type": "allow_deny_list",
     "collection_name": f"redacted-allow-deny-list-{os.environ.get('PROJECT_ID')}",
     "queries": [
         {
@@ -87,7 +87,7 @@ allow_deny_list_cfg = {
 }
 
 allow_deny_keyword_cfg = {
-    "type": "user",
+    "type": "allow_deny_keyword",
     "collection_name": f"redacted-allow-deny-list-{os.environ.get('PROJECT_ID')}",
     "queries": [
         {
@@ -101,7 +101,7 @@ allow_deny_keyword_cfg = {
 
 document_cfgs = []
 
-for i in ["5b6ffa1d204a5bfc1d3dbe3ff135e066", "10eb13d1f1aa5d65f9de333a09ac6384"]:
+for i in ["520931456552e86f01ec1cffa4ee7ae0", "a02adfbed33919b02c9e697b78d7d0b2"]:
     document_cfgs.extend(get_content_item_relatives(i))
 
 document_cfgs += [

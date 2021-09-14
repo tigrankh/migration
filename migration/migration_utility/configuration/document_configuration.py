@@ -45,6 +45,12 @@ class DocumentConfiguration(BaseModel):
         0, description="number of migrated documents"
     )
 
+    @property
+    def find_one(self) -> bool:
+        """Returns true if search is performed on id field"""
+
+        return len(self.queries) == 1 and self.queries[0].field_name == "id"
+
     def export_cancelled_doc_info(
         self, cancelled_documents: List[dict], exc_info: dict
     ) -> List[dict]:

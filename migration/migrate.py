@@ -19,7 +19,7 @@ import sys
 def main(
         reset_migration: bool = False,
         force_migration: bool = False,
-        id_list_path: str = None
+        flow: str = "flat"
 ):
     """main."""
 
@@ -33,6 +33,7 @@ def main(
         destination_db_config=destination_db_cfg_model,
         internal_db_config=internal_db_cfg_model,
         document_configs=document_config_models,
+        flow=flow
     )
 
     migration_ctrl.migrate(reset_migration=reset_migration, force_migration=force_migration)
@@ -44,12 +45,12 @@ if __name__ == "__main__":
     parser.add_argument("--reset", action="store_true", help="Resets all previously migrated documents to is_migrated=True state")
     parser.add_argument("--force", action="store_true", help="Forces a repeated migration over all documents")
     parser.add_argument("--id_list_path", default=None, help="Path to a file with list of IDs to migrate")
-    parser.add_argument("--flow", default="all", help="Specifies the migration flow")
+    parser.add_argument("--flow", default="flat", help="Specifies the migration flow")
 
     args = parser.parse_args()
 
     main(
         reset_migration=args.reset,
         force_migration=args.force,
-        id_list_path=args.id_list_path,
+        flow=args.flow
     )

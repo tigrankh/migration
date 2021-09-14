@@ -11,6 +11,7 @@ from migration.migration_utility.configuration.document_configuration import (
 from migration.migration_utility.controller.container_manager import ContainerManager
 from migration.migration_utility.db_clients.generic import GenericClient
 from migration_utility.data_types import ReadQueryResult, WriteQueryResult
+from migration_utility.enums import FlowNames
 from migration_utility.exceptions import (
     InsertionWasCancelledError,
     RetryableFetchingError,
@@ -28,6 +29,7 @@ class MigrationController:
         internal_db_config: DbConfigurator,
         document_configs: List[DocumentConfiguration],
         collections_to_migrate: List[str] = None,
+        flow: str = "flat"
     ):
         """Initializes migration controller object with the given arguments.
 
@@ -37,12 +39,14 @@ class MigrationController:
             internal_db_config: DbConfigurator instance for the internal database
             document_configs: list of DocumentConfiguration instances, which describe documents/collections
             collections_to_migrate: a list of collections that need to be migrated. all will be migrated if set to None
+            flow: migration flow that will be used
         """
 
         self.source_db_config = source_db_config
         self.destination_db_config = destination_db_config
         self.internal_db_config = internal_db_config
         self.collections_to_migrate = collections_to_migrate
+        self.flow = flow
 
         self._source_db_client = None
         self._destination_db_client = None
@@ -130,7 +134,9 @@ class MigrationController:
     def last_fetched_key(self) -> dict:
         """Returns the latest evaluated document."""
 
-        if not self.source_db_client.last_fetched_key and not self.current_doc_cfg.all_fetched:
+        if not self.source_db_client.last_fetched_key \
+                and not self.current_doc_cfg.all_fetched \
+                and self.flow not in [FlowNames.HIERARCHICAL]:
             self.source_db_client.set_last_document(
                 self.internal_db_client.find_document(
                     collection_name=self.current_doc_cfg.collection_name,
@@ -158,12 +164,18 @@ class MigrationController:
                 return ReadQueryResult(documents=[], has_more=False)
 
         try:
-            query_result = self.source_db_client.find(
-                collection_name=self.current_doc_cfg.collection_name,
-                queries=self.current_doc_cfg.queries,
-                query_index_name=self.current_doc_cfg.query_index_name,
-                find_all=find_all
-            )
+            if self.current_doc_cfg.find_one:
+                query_result = self.source_db_client.find_document(
+                    collection_name=self.current_doc_cfg.collection_name,
+                    doc_id=self.current_doc_cfg.queries[0].value
+                )
+            else:
+                query_result = self.source_db_client.find(
+                    collection_name=self.current_doc_cfg.collection_name,
+                    queries=self.current_doc_cfg.queries,
+                    query_index_name=self.current_doc_cfg.query_index_name,
+                    find_all=find_all,
+                )
         except RetryableFetchingError:
             query_result = self.retry_fetch(find_all=find_all)
 
@@ -295,7 +307,8 @@ class MigrationController:
                     collection_name=self.current_doc_cfg.collection_name,
                     queries=self.current_doc_cfg.queries,
                     query_index_name=self.current_doc_cfg.query_index_name,
-                    find_all=find_all
+                    find_all=find_all,
+                    find_one=self.current_doc_cfg.find_one
                 )
 
                 return query_res

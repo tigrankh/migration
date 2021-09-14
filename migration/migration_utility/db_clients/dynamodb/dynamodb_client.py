@@ -73,11 +73,7 @@ class DynamoDbClient(GenericClient):
         self._last_document = last_document
 
         if last_document:
-            self._last_evaluated_key = {
-                "model_type": last_document["model_type"],
-                "created_at": last_document["created_at"],
-                "id": last_document["id"],
-            }
+            self._last_evaluated_key = last_document
         else:
             self._last_evaluated_key = None
 
@@ -191,8 +187,22 @@ class DynamoDbClient(GenericClient):
             last_evaluated_key=self._last_evaluated_key,
         )
 
-    def find_document(self, collection_name: str, doc_id: str) -> Union[dict, None]:
+    def find_document(self, collection_name: str, doc_id: str) -> ReadQueryResult:
         """find doc."""
+
+        try:
+            doc_data = self.resource_connector.Table(collection_name).get_item(Key={"id": doc_id})
+
+            return ReadQueryResult(
+                has_more=False,
+                documents=[doc_data.get("Item", {})],
+                last_evaluated_key=None
+            )
+        except ClientError as exc:
+            logging.exception(
+                f"Failed to fetch document with id={doc_id}"
+            )
+            raise RetryableFetchingError from exc
 
     def _fetch_document_batch(
         self, collection_name: str, key_or_filter_expression, query_index_name: str, find_all: bool = False
