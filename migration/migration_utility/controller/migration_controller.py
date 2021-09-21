@@ -63,7 +63,7 @@ class MigrationController:
                 cfg
                 for col_name in self.collections_to_migrate
                 for cfg in document_configs
-                if cfg.collection_name == col_name
+                if cfg.source_collection_name == col_name
             ]
 
         self.current_doc_cfg = self.next_document_configuration
@@ -141,7 +141,7 @@ class MigrationController:
                 and self.flow not in [FlowNames.HIERARCHICAL]:
             self.source_db_client.set_last_document(
                 self.internal_db_client.find_document(
-                    collection_name=self.current_doc_cfg.collection_name,
+                    collection_name=self.current_doc_cfg.destination_collection_name,
                     doc_id="LastEvaluatedKey",
                 )
                 or {}
@@ -172,12 +172,12 @@ class MigrationController:
         try:
             if self.current_doc_cfg.find_one:
                 query_result = self.source_db_client.find_document(
-                    collection_name=self.current_doc_cfg.collection_name,
+                    collection_name=self.current_doc_cfg.source_collection_name,
                     doc_id=self.current_doc_cfg.queries[0].value
                 )
             else:
                 query_result = self.source_db_client.find(
-                    collection_name=self.current_doc_cfg.collection_name,
+                    collection_name=self.current_doc_cfg.source_collection_name,
                     queries=self.current_doc_cfg.queries,
                     query_index_name=self.current_doc_cfg.query_index_name,
                     find_all=find_all,
@@ -191,7 +191,7 @@ class MigrationController:
 
         if query_result.last_evaluated_key:
             self.internal_db_client.update(
-                collection_name=self.current_doc_cfg.collection_name,
+                collection_name=self.current_doc_cfg.destination_collection_name,
                 update_data={
                     "_id": "LastEvaluatedKey",
                     **query_result.last_evaluated_key,
@@ -207,7 +207,7 @@ class MigrationController:
 
         try:
             query_res = self.destination_db_client.batch_write(
-                collection_name=self.current_doc_cfg.collection_name,
+                collection_name=self.current_doc_cfg.destination_collection_name,
                 documents=self.container_manager.transit_bucket,
             )
             self.current_doc_cfg.num_migrated += query_res.processed_count
@@ -224,7 +224,7 @@ class MigrationController:
         except InsertionWasCancelledError as exc:
             try:
                 self.internal_db_client.batch_write(
-                    collection_name=self.current_doc_cfg.collection_name,
+                    collection_name=self.current_doc_cfg.destination_collection_name,
                     documents=self.current_doc_cfg.export_cancelled_doc_info(
                         exc.cancelled_documents, exc_info=exc.exception_details
                     ),
@@ -250,14 +250,14 @@ class MigrationController:
 
             query_res = self.insert()
             self.source_db_client.batch_update(
-                collection_name=self.current_doc_cfg.collection_name,
+                collection_name=self.current_doc_cfg.source_collection_name,
                 updates=self._generate_migration_marks(query_res.inserted_document_ids),
             )
 
             return query_res
 
     def reset_migration(self):
-        curr_collection_name = self.current_doc_cfg.collection_name
+        curr_collection_name = self.current_doc_cfg.source_collection_name
         self.container_manager.primary_to_transit_bucket()
 
         time.sleep(0.5)
@@ -285,7 +285,7 @@ class MigrationController:
             logging.info(f"Starting retry attempt #{i + 1}")
 
             query_res = self.destination_db_client.batch_write(
-                collection_name=self.current_doc_cfg.collection_name,
+                collection_name=self.current_doc_cfg.destination_collection_name,
                 documents=self.container_manager.retry_bucket,
             )
 
@@ -310,7 +310,7 @@ class MigrationController:
             i += 1
             try:
                 query_res = self.source_db_client.find(
-                    collection_name=self.current_doc_cfg.collection_name,
+                    collection_name=self.current_doc_cfg.source_collection_name,
                     queries=self.current_doc_cfg.queries,
                     query_index_name=self.current_doc_cfg.query_index_name,
                     find_all=find_all,
@@ -323,7 +323,7 @@ class MigrationController:
                 continue
 
         raise FetchingTerminatedError(
-            f"Terminating fetching documents from {self.current_doc_cfg.collection_name}"
+            f"Terminating fetching documents from {self.current_doc_cfg.source_collection_name}"
         )
 
     async def insert_fetch_cycle(self):
@@ -342,7 +342,7 @@ class MigrationController:
 
         if self.container_manager.data_exists:
             query_res = self.insert()
-            curr_collection_name = self.current_doc_cfg.collection_name
+            curr_collection_name = self.current_doc_cfg.source_collection_name
 
             # Suspicion is that on EC2, batch_update happens faster than fetch does
             # Which is causing the LastEvaluatedKey to be invalidated, since its out of the query results due to

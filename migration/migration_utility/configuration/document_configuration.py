@@ -25,6 +25,18 @@ class DocumentConfiguration(BaseModel):
     collection_name: str = Field(
         ..., description="name of the database collection to read/write documents"
     )
+    source_db_prefix: str = Field(
+        "", description="prefix of collection name for source db"
+    )
+    source_db_suffix: str = Field(
+        "", description="suffix of collection name for source db"
+    )
+    dest_db_prefix: str = Field(
+        "", description="prefix of collection name for destination db"
+    )
+    dest_db_suffix: str = Field(
+        "", description="suffix of collection name for destination db"
+    )
     related_document: RelatedDocument = Field(
         None,
         description="info of the related document",
@@ -50,6 +62,19 @@ class DocumentConfiguration(BaseModel):
         """Returns true if search is performed on id field"""
 
         return len(self.queries) == 1 and self.queries[0].field_name == "id"
+
+    @property
+    def source_collection_name(self) -> str:
+        """Returns collection name"""
+
+        return self.source_db_prefix + self.collection_name + self.source_db_suffix
+
+    @property
+    def destination_collection_name(self) -> str:
+        """Returns collection name"""
+
+        return self.dest_db_prefix + self.collection_name + self.dest_db_suffix
+
 
     def export_cancelled_doc_info(
         self, cancelled_documents: List[dict], exc_info: dict
